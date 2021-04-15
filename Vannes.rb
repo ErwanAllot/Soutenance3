@@ -4,21 +4,30 @@ require "pry"
 require "sqlite3"
 require "pry"
 
-
-db = SQLITE3::Database.new("maison.db")
-
-
 # VANNES
+db = SQLite3::Database.open "maison.db"
+
 
 class Maison
-    def initialize (g, size, location, price, energy, foundation_years)
+    def initialize (g, size, location, price, energy, foundation_years, url)
         @g = g
         @size = size
         @location = location
         @price = price
         @energy = energy
         @foundation_years = foundation_years
+        @url = url
+       
     end
+
+    def g
+        @g
+    end
+
+    def url
+        @url
+    end
+
 
     def nomDeVille
         @location.split(' ')
@@ -30,7 +39,7 @@ class Maison
         nomDeVille[1]
     end
     def info
-        "#{@g} #{taille} #{ville} #{cp} #{@energy} #{prix} #{annee_de_construction}" 
+        "#{@g} #{taille} #{ville} #{cp} #{@energy} #{prix} #{prix_au_metre_carre} #{annee_de_construction} #{@url} #{prix_au_metre_carre}" 
     end
     def taille
         @size.delete_suffix!(' m²')
@@ -44,12 +53,13 @@ class Maison
           break if i == l - 1
         i = i + 1
         end
-       return a
+       return a.to_i 
         
     end
     def g
         @g
     end
+
 
     def prix
         j = @price.split('')
@@ -61,14 +71,14 @@ class Maison
            break if i == l - 1
          i = i + 1
          end
-        return a    
+        return a.to_i    
     end
 
 
     def annee_de_construction
-        g = @foundation_years 
-        return "?" if g == "Inconnu" || g == "inconnu"
-        g 
+        a = @foundation_years 
+        return "?" if a == "Inconnu" || a == "inconnu"
+        a.to_i  
     end
 
     def presentation
@@ -81,11 +91,12 @@ class Maison
     end
 
     def energie 
-        return "Non rensigné" if @energy == "N/A"
+        return "Non renseigné" if @energy == "N/A"
         @energy
     end
     
-    db.execute("INSERT OR IGNORE INTO house VALUES (#{@g} #{prix})")
+   
+    
 
 
 
@@ -114,13 +125,21 @@ i = 1
 
 
 
-    maison = Maison.new(g, size, location, price, energy, foundation_years)
-    
-    
+    maison = Maison.new(g, size, location, price, energy, foundation_years, url)
+
+
+#    "#{@g} #{taille} #{ville} #{cp} #{@energy} #{prix} #{prix_au_metre_carre} #{annee_de_construction} #{@url}" 
+   # db.execute("INSERT OR IGNORE INTO maison VALUES (:id, :taille, :ville, :cp, :énergie, :année de construction, :url, :prix au mètre carré, :price)",) {id: @g, taille: maison.taille, ville: maison.ville, cp : maison.cp, énergie: @energy, année de construction: maison.annee_de_construction,  url: maison.url, prix au mètre carré: maison.prix_au_metre_carre, price: maison.prix}
+   db.execute ("INSERT OR IGNORE INTO bibi VALUES (:id, :taille, :ville, :cp, :energie, :prix, :an, :url, :ratio) "), {id: maison.g, taille: maison.taille, ville: maison.ville, cp:maison.cp, energie: maison.energie, prix: maison.prix, an: maison.annee_de_construction, url:maison.url, ratio:maison.prix_au_metre_carre  }
+
+
+
+
+     #db.execute("INSERT OR IGNORE INTO woman VALUES (:id, :taille, :ville, :cp, :energie, :price, :anneeDeConstruction, :url, :prixCarre )"), {id: @g, taille: maison.taille, ville: maison.ville, cp : maison.cp, energie: @energy, prix: maison.prix, anneeDeConstruction: maison.annee_de_construction, url: maison.url, prixCarre: maison.prix_au_metre_carre}
    # p maison.info
-     p maison.presentation
+    # p maison.presentation
     # p maison.prix_au_metre_carre
-    
+ 
 
     
 

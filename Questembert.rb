@@ -8,18 +8,34 @@ require "pry"
 
 # QUESTEMBERT
 
-db = SQLITE3::Database.new("maison2.db")
+#db = SQLITE3::Database.new("maison2.db")
+db = SQLite3::Database.open "maison.db"
 
 
 class Maison
-    def initialize (g, size, location, price, energy, foundation_years)
+    def initialize (g, size, location, price, energy, foundation_years, url)
         @g = g
         @size = size
         @location = location
         @price = price
         @energy = energy
         @foundation_years = foundation_years
+        @url = url
     end
+
+
+    def g
+        @g
+    end
+
+    def url
+        @url
+    end
+
+
+
+
+
 
     def nomDeVille
         @location.split(' ')
@@ -31,7 +47,7 @@ class Maison
         nomDeVille[3]
     end
     def info
-        "#{@g} #{taille} #{ville} #{cp} #{energie} #{prix} #{annee_de_construction}" 
+        "#{@g} #{taille} #{ville} #{cp} #{@energy} #{prix} #{prix_au_metre_carre} #{annee_de_construction} #{@url} #{prix_au_metre_carre}" 
     end
     def taille
         
@@ -45,7 +61,7 @@ class Maison
           break if i == l - 2
         i = i + 1
         end
-       return a
+       return a.to_i
         
     end
     def g
@@ -62,7 +78,7 @@ class Maison
            break if i == l - 1
          i = i + 1
          end
-        return a    
+        return a.to_i    
     end
 
 
@@ -77,7 +93,7 @@ class Maison
          i = i + 1
          end
         return "Non renseigné" if a == nil
-        a  
+        a.to_i  
     end
 
     def presentation
@@ -122,11 +138,14 @@ app = Nokogiri::HTML(html)
     energy = app.css(".energetic").children.text
     foundation_years = app.css(".year").children.text
  
-maison = Maison.new(g, size, location, price, energy, foundation_years)
-   p maison.info
+    
+    maison = Maison.new(g, size, location, price, energy, foundation_years, url)
+ #  p maison.info
   # p maison.presentation
  # p maison.prix_au_metre_carre
 # p maison.energie
+db.execute ("INSERT OR IGNORE INTO bibi VALUES (:id, :taille, :ville, :cp, :energie, :prix, :an, :url, :ratio) "), {id: maison.g, taille: maison.taille, ville: maison.ville, cp:maison.cp, energie: maison.energie, prix: maison.prix, an: maison.annee_de_construction, url:maison.url, ratio:maison.prix_au_metre_carre  }
+
 
     break if i == 15
     i = i + 1
